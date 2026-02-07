@@ -56,7 +56,7 @@ export default defineConfig(
             prettier: prettierPlugin,
         },
         rules: {
-            "prettier/prettier": "warning",
+            "prettier/prettier": "warn",
         },
     },
     prettierConfig,

@@ -1,0 +1,21 @@
+{
+    "files": [],
+    "references": [
+        { "path": "./packages/lib" },
+        { "path": "./packages/server" },
+        { "path": "./packages/client" }
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "skipLibCheck": true
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/node_modules",
+        "**/dist",
+        "**/.vite",
+        "**/coverage",
+        "**/*.tsbuildinfo"
+    ]
+}

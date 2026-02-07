@@ -82,6 +82,10 @@ out
 .nuxt
 dist
 
+# Vite build artifacts
+.vite
+**/.vite
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
@@ -123,8 +127,10 @@ dist
 .tern-port
 
 # Stores VSCode versions used for testing VSCode extensions
-.vscode
 .vscode-test
+
+# But keep .vscode/settings.json for shared configuration
+.vscode
 
 # yarn v3
 .pnp.*
