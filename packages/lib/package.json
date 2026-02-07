@@ -1,0 +1,26 @@
+{
+    "name": "@task6/lib",
+    "version": "1.0.0",
+    "description": "Shared library for Task6",
+    "license": "MIT",
+    "author": "Ahmedok",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "clean": "rm -rf dist",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {}
+}

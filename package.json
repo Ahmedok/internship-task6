@@ -1,0 +1,58 @@
+{
+    "name": "task6",
+    "version": "1.0.0",
+    "description": "Task 6 monorepo",
+    "keywords": [
+        "training"
+    ],
+    "homepage": "https://github.com/Ahmedok/internship-task6#readme",
+    "bugs": {
+        "url": "https://github.com/Ahmedok/internship-task6/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Ahmedok/internship-task6.git"
+    },
+    "license": "MIT",
+    "author": "Ahmedok",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "dev": "npm run dev --workspace=packages/client",
+        "dev:server": "npm run dev --workspace=packages/server",
+        "dev:lib": "npm run dev --workspace=packages/lib",
+        "build": "npm run build --workspaces --if-present",
+        "clean": "npm run clean --workspaces --if-present",
+        "start": "npm run start --workspace=packages/server",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write \"**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,json,css,md}\"",
+        "format:check": "prettier --check \"**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,json,css,md}\"",
+        "type-check": "tsc --noEmit --composite false --skipLibCheck",
+        "docker:build": "docker build -t task6-tictactoe .",
+        "docker:run": "docker run -p 3000:3000 task6-tictactoe",
+        "docker:up": "docker-compose up -d",
+        "docker:down": "docker-compose down",
+        "docker:dev": "docker-compose -f docker-compose.dev.yml up",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "workspaces": [
+        "packages/client",
+        "packages/server",
+        "packages/lib"
+    ],
+    "devDependencies": {
+        "@eslint/js": "^9.39.2",
+        "@types/node": "^25.2.1",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.5",
+        "eslint-plugin-react-hooks": "^7.0.1",
+        "eslint-plugin-react-refresh": "^0.5.0",
+        "globals": "^17.3.0",
+        "prettier": "^3.8.1",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.54.0"
+    }
+}
