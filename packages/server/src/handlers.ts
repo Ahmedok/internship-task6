@@ -31,47 +31,52 @@ export type TypedSocket = Socket<
 
 export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
     socket.on("join_game", async (payload, callback) => {
-        const validation = JoinGameSchema.safeParse(payload);
-        if (!validation.success) {
-            if (typeof callback === "function") {
-                callback({ error: "Invalid data: " + validation.error.message });
-            }
-            return;
-        }
-
-        const { name, roomId } = validation.data;
-        let game;
-
-        if (roomId) {
-            game = gameStorage.findGame(roomId);
-            if (!game) {
-                if (typeof callback === "function") callback({ error: "Room not found" });
+        try {
+            const validation = JoinGameSchema.safeParse(payload);
+            if (!validation.success) {
+                if (typeof callback === "function") {
+                    callback({ error: "Invalid data: " + validation.error.message });
+                }
                 return;
             }
-        } else {
-            game = gameStorage.createGame();
+
+            const { name, roomId } = validation.data;
+            let game;
+
+            if (roomId) {
+                game = gameStorage.findGame(roomId);
+                if (!game) {
+                    if (typeof callback === "function") callback({ error: "Room not found" });
+                    return;
+                }
+            } else {
+                game = gameStorage.createGame();
+            }
+
+            const success = game.addPlayer({
+                id: socket.id,
+                name: name,
+                symbol: "X",
+            });
+
+            if (!success) {
+                if (typeof callback === "function")
+                    callback({ error: "Room is full or game has already started" });
+                return;
+            }
+
+            socket.data.roomId = game.publicState.roomId;
+            socket.data.playerName = name;
+
+            await socket.join(game.publicState.roomId);
+
+            if (typeof callback === "function") callback({ roomId: game.publicState.roomId });
+
+            io.to(game.publicState.roomId).emit("game_state_update", game.publicState);
+        } catch (error) {
+            console.error("Error in join_game handler:", error);
+            if (typeof callback === "function") callback({ error: "Internal server error" });
         }
-
-        const success = game.addPlayer({
-            id: socket.id,
-            name: name,
-            symbol: "X",
-        });
-
-        if (!success) {
-            if (typeof callback === "function")
-                callback({ error: "Room is full or game has already started" });
-            return;
-        }
-
-        socket.data.roomId = game.publicState.roomId;
-        socket.data.playerName = name;
-
-        await socket.join(game.publicState.roomId);
-
-        if (typeof callback === "function") callback({ roomId: game.publicState.roomId });
-
-        io.to(game.publicState.roomId).emit("game_state_update", game.publicState);
     });
 
     socket.on("make_move", (payload) => {
