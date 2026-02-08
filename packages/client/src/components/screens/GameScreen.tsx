@@ -1,46 +1,22 @@
-import { useGameStorage } from "../../store/game";
+import { useTicTacToe } from "../../hooks/useTicTacToe";
 import { Board } from "../game/Board";
 import { Cell } from "../game/Cell";
 import { Button } from "../ui/Button";
 import { CenterLayout } from "../layout/CenterLayout";
 import { cn } from "../../lib/utils";
-import type { PlayerSymbol } from "@task6/lib";
+import { useState } from "react";
 
 export function GameScreen() {
-    const { gameState, playerId, makeMove, leaveGame, playAgain } = useGameStorage();
+    const game = useTicTacToe();
 
-    if (!gameState) return null;
+    const [copied, setCopied] = useState(false);
 
-    const me = gameState.players.find((p) => p.id === playerId);
-    const opponent = gameState.players.find((p) => p.id !== playerId);
-
-    const mySymbol: PlayerSymbol | undefined = me?.symbol;
-    const isMyTurn = gameState.turn === mySymbol && gameState.status === "PLAYING";
-    const isGameOver = gameState.status === "FINISHED";
-
-    const isWinner = mySymbol && gameState.winner === `${mySymbol}_WIN`;
-    const isDraw = gameState.winner === "DRAW";
-
-    const getStatusText = (): string => {
-        if (gameState.status === "WAITING") return "Waiting for opponent...";
-        if (isGameOver) {
-            if (isWinner) return "YOU WON!";
-            if (isDraw) return "It's a Draw!";
-            return "You Lost";
-        }
-        return isMyTurn ? "Your Turn" : `${opponent?.name ?? "Opponent"}'s Turn`;
-    };
-
-    const copyRoomId = () => {
-        navigator.clipboard
-            .writeText(gameState.roomId)
-            .then(() => {
-                alert("Room ID copied to clipboard!");
-            })
-            .catch((err: unknown) => {
-                console.error("Failed to copy:", err);
-                alert("Failed to copy Room ID");
-            });
+    const handleCopy = () => {
+        game.copyRoomId();
+        setCopied(true);
+        setTimeout(() => {
+            setCopied(false);
+        }, 2000);
     };
 
     return (
@@ -49,10 +25,20 @@ export function GameScreen() {
                 <div className="flex flex-col">
                     <span className="text-xs uppercase tracking-wider">Room ID</span>
                     <button
-                        onClick={copyRoomId}
+                        onClick={handleCopy}
                         className="font-mono text-white hover:text-indigo-400 transition-colors text-left flex items-center gap-2"
                     >
-                        {gameState.roomId}
+                        {game.roomId}
+                        <span
+                            className={cn(
+                                "text-xs transition-opacity",
+                                copied
+                                    ? "opacity-100 text-green-400"
+                                    : "opacity-0 group-hover:opacity-50",
+                            )}
+                        >
+                            {copied ? "Copied!" : "Copy"}
+                        </span>
                     </button>
                 </div>
                 <div className="text-right">
@@ -60,58 +46,52 @@ export function GameScreen() {
                     <span
                         className={cn(
                             "text-2xl font-bold",
-                            mySymbol === "X" ? "text-indigo-400" : "text-rose-400",
+                            game.mySymbol === "X" ? "text-indigo-400" : "text-rose-400",
                         )}
                     >
-                        {mySymbol}
+                        {game.mySymbol}
                     </span>
                 </div>
             </div>
             <div
                 className={cn(
-                    "w-full py-4 rounded-xl text-center font-bold text-xl mb-6 transition-all duration-300",
-                    isMyTurn
-                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 scale-105"
-                        : "bg-slate-800 text-slate-400",
+                    "w-full py-4 rounded-xl text-center font-bold text-xl mb-6 transition-all duration-300 shadow-lg",
+                    game.statusColor === "active" &&
+                        "bg-indigo-600 text-white shadow-indigo-500/20 scale-105",
+                    game.statusColor === "success" &&
+                        "bg-green-600 text-white shadow-green-500/20 scale-110",
+                    game.statusColor === "danger" && "bg-rose-600 text-white shadow-rose-500/20",
+                    game.statusColor === "neutral" &&
+                        "bg-slate-800 text-slate-400 border border-slate-700",
                 )}
             >
-                {getStatusText()}
+                {game.statusText}
             </div>
             <Board>
-                {gameState.board.map((cellValue, index) => {
-                    const isWinningCell = Boolean(gameState.winningLine?.includes(index));
+                {game.board.map((cellValue, index) => {
+                    const isWinningCell = Boolean(game.winningLine?.includes(index));
 
                     return (
                         <Cell
                             key={index}
                             value={cellValue}
                             isWinning={isWinningCell}
-                            disabled={!isMyTurn || isGameOver}
+                            disabled={game.isGameOver || cellValue !== null}
                             onClick={() => {
-                                makeMove(index);
+                                game.onCellClick(index);
                             }}
                         />
                     );
                 })}
             </Board>
             <div className="w-full mt-8 flex flex-col gap-3">
-                {isGameOver && (
-                    <Button
-                        onClick={() => {
-                            playAgain();
-                        }}
-                        className="animate-bounce"
-                    >
+                {game.isGameOver && (
+                    <Button onClick={game.onPlayAgain} className="animate-bounce">
                         Play Again
                     </Button>
                 )}
 
-                <Button
-                    variant="secondary"
-                    onClick={() => {
-                        leaveGame();
-                    }}
-                >
+                <Button variant="secondary" onClick={game.onLeave}>
                     Leave Game
                 </Button>
             </div>
