@@ -1,20 +1,16 @@
 import { useEffect } from "react";
 import { useGameStorage } from "./store/game";
+import { LobbyScreen } from "./components/screens/LobbyScreen";
+import { GameScreen } from "./components/screens/GameScreen";
 
 function App() {
-    const { connect, isConnected, playerId } = useGameStorage();
+    const { connect, gameState } = useGameStorage();
 
     useEffect(() => {
         connect();
     }, [connect]);
 
-    return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold">Client debug</h1>
-            <p>Status: {isConnected ? "Connected" : "Disconnected"}</p>
-            <p>My ID: {playerId}</p>
-        </div>
-    );
+    return <main className="antialiased">{gameState ? <GameScreen /> : <LobbyScreen />}</main>;
 }
 
 export default App;
