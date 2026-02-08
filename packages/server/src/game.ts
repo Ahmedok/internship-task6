@@ -10,6 +10,8 @@ import {
 export class Game {
     private state: GameState;
 
+    public lastActivity: number;
+
     constructor(roomId: string) {
         this.state = {
             roomId,
@@ -21,6 +23,7 @@ export class Game {
             winType: null,
             winningLine: null,
         };
+        this.lastActivity = Date.now();
     }
 
     get publicState(): GameState {
@@ -29,6 +32,10 @@ export class Game {
             board: [...this.state.board],
             players: this.state.players.map((p) => ({ ...p })),
         };
+    }
+
+    get playerCount(): number {
+        return this.state.players.length;
     }
 
     addPlayer(player: Player): boolean {
@@ -44,6 +51,7 @@ export class Game {
             this.state.status = "PLAYING";
         }
 
+        this.lastActivity = Date.now();
         return true;
     }
 
@@ -58,6 +66,8 @@ export class Game {
                 this.state.players[0].symbol = "X";
             }
         }
+
+        this.lastActivity = Date.now();
     }
 
     makeMove(playerId: string, index: number): boolean {
@@ -83,7 +93,13 @@ export class Game {
         } else {
             this.state.turn = this.state.turn === "X" ? "O" : "X";
         }
+
+        this.lastActivity = Date.now();
         return true;
+    }
+
+    touch(): void {
+        this.lastActivity = Date.now();
     }
 
     resetGame(): void {
