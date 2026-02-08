@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
+import { cn } from "../../lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: "primary" | "secondary" | "danger";
@@ -9,23 +10,24 @@ export function Button({
     children,
     variant = "primary",
     isLoading,
-    className = "",
+    className,
     disabled,
     ...props
 }: ButtonProps) {
-    const baseStyles =
-        "w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
-
-    const variants = {
-        primary: "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20",
-        secondary: "bg-slate-700 hover:bg-slate-600 text-slate-200",
-        danger: "bg-red-500 hover:bg-red-600 text-white",
-    };
-
     return (
         <button
             disabled={disabled ?? isLoading}
-            className={`${baseStyles} ${variants[variant]} ${className}`}
+            className={cn(
+                "w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 active:scale-95",
+                "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
+                {
+                    "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20":
+                        variant === "primary",
+                    "bg-slate-700 hover:bg-slate-600 text-slate-200": variant === "secondary",
+                    "bg-red-500 hover:bg-red-600 text-white": variant === "danger",
+                },
+                className,
+            )}
             {...props}
         >
             {isLoading ? (
