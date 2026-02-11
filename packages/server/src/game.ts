@@ -22,6 +22,7 @@ export class Game {
             winner: null,
             winType: null,
             winningLine: null,
+            rematchVotes: [],
         };
         this.lastActivity = Date.now();
     }
@@ -109,5 +110,17 @@ export class Game {
         this.state.winType = null;
         this.state.winningLine = null;
         this.state.status = this.state.players.length === 2 ? "PLAYING" : "WAITING";
+        this.state.rematchVotes = [];
+    }
+
+    voteRematch(playerId: string): void {
+        if (this.state.rematchVotes.includes(playerId)) return;
+        this.state.rematchVotes.push(playerId);
+
+        if (
+            this.state.rematchVotes.length >= this.state.players.length &&
+            this.state.players.length > 0
+        )
+            this.resetGame();
     }
 }

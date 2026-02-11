@@ -55,8 +55,17 @@ export function GameScreen() {
                             ? "Great job! Want to play again?"
                             : "Don't give up! Try again?"}
                     </p>
-                    <Button onClick={game.onPlayAgain} className="w-full">
-                        Play Again
+                    <Button
+                        onClick={game.onPlayAgain}
+                        className={cn(
+                            "w-full transition-all",
+                            !game.rematchState.iVoted &&
+                                game.rematchState.opponentVoted &&
+                                "bg-green-600 hover:bg-green-500 animate-pulse",
+                        )}
+                        disabled={game.rematchState.isDisabled}
+                    >
+                        {game.rematchState.buttonText}
                     </Button>
                     <Button variant="secondary" onClick={game.onLeave} className="w-full">
                         Back to Lobby

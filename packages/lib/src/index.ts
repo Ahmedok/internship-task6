@@ -29,6 +29,7 @@ export interface GameState {
     winner: WinSide | null;
     winType: WinType | null;
     winningLine: readonly [number, number, number] | null;
+    rematchVotes: string[];
 }
 
 // Shemas with zod

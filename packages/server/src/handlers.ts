@@ -112,7 +112,7 @@ export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
         const game = gameStorage.findGame(roomId);
         if (!game || socket.data.roomId !== roomId) return;
 
-        game.resetGame();
+        game.voteRematch(socket.id);
         io.to(roomId).emit("game_state_update", game.publicState);
     });
 

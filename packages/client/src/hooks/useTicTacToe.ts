@@ -9,6 +9,9 @@ export function useTicTacToe() {
     const me = gameState.players.find((p) => p.id === playerId);
     const opponent = gameState.players.find((p) => p.id !== playerId);
 
+    const iVoted = gameState.rematchVotes.includes(playerId ?? "");
+    const opponentVoted = gameState.rematchVotes.some((id) => id !== playerId);
+
     const mySymbol: PlayerSymbol | undefined = me?.symbol;
     const isMyTurn = gameState.turn === mySymbol && gameState.status === "PLAYING";
     const isGameOver = gameState.status === "FINISHED";
@@ -53,6 +56,17 @@ export function useTicTacToe() {
         onCellClick: handleCellClick,
         onLeave: leaveGame,
         onPlayAgain: playAgain,
+
+        rematchState: {
+            iVoted,
+            opponentVoted,
+            buttonText: iVoted
+                ? "Waiting for opponent..."
+                : opponentVoted
+                  ? "Accept Rematch!"
+                  : "Play Again",
+            isDisabled: iVoted,
+        },
 
         copyRoomId: () => {
             navigator.clipboard
