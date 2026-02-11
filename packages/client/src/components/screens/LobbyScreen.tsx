@@ -5,11 +5,16 @@ import { Card } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { CenterLayout } from "../layout/CenterLayout";
 
+function getInitialRoomId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("room") ?? "";
+}
+
 export function LobbyScreen() {
     const { joinGame, isConnecting, error, resetError } = useGameStorage();
 
     const [name, setName] = useState("");
-    const [joinRoomId, setJoinRoomId] = useState("");
+    const [joinRoomId, setJoinRoomId] = useState(getInitialRoomId());
 
     const handleCreate = () => {
         if (!name.trim()) return;

@@ -69,15 +69,11 @@ export function useTicTacToe() {
         },
 
         copyRoomId: () => {
-            navigator.clipboard
-                .writeText(gameState.roomId)
-                .then(() => {
-                    alert("Room ID copied to clipboard!");
-                })
-                .catch((err: unknown) => {
-                    console.error("Failed to copy:", err);
-                    alert("Failed to copy Room ID");
-                });
+            const url = `${window.location.origin}/?room=${gameState.roomId}`;
+
+            navigator.clipboard.writeText(url).catch((err: unknown) => {
+                console.error("Failed to copy:", err);
+            });
             return true;
         },
     };

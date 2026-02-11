@@ -88,7 +88,7 @@ export function GameScreen() {
                                     : "opacity-0 group-hover:opacity-50",
                             )}
                         >
-                            {copied ? "Copied!" : "Copy"}
+                            {copied ? "Copied URL to clipboard" : "Copy to clipboard"}
                         </span>
                     </button>
                 </div>
