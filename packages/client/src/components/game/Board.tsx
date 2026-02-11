@@ -1,5 +1,16 @@
 import type { ReactNode } from "react";
+import { StrikeLine } from "./StrikeLine";
 
-export function Board({ children }: { children: ReactNode }) {
-    return <div className="grid grid-cols-3 gap-3 w-full max-w-100 mx-auto">{children}</div>;
+interface BoardProps {
+    children: ReactNode;
+    winningLine: number[] | null;
+}
+
+export function Board({ children, winningLine }: BoardProps) {
+    return (
+        <div className="grid grid-cols-3 gap-3 w-full max-w-100 mx-auto relative">
+            {children}
+            <StrikeLine winningLine={winningLine} />
+        </div>
+    );
 }
