@@ -4,11 +4,15 @@ import { Cell } from "../game/Cell";
 import { Button } from "../ui/Button";
 import { CenterLayout } from "../layout/CenterLayout";
 import { cn } from "../../lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Modal } from "../ui/Modal";
+import { useGameSounds } from "../../hooks/useGameSounds";
 
 export function GameScreen() {
     const game = useTicTacToe();
+
+    const { playWin, playLose, playPop } = useGameSounds();
+    const hasPlayedEndSound = useRef(false);
 
     const [copied, setCopied] = useState(false);
 
@@ -31,6 +35,17 @@ export function GameScreen() {
             };
         }
     }, [game.isGameOver]);
+
+    useEffect(() => {
+        if (game.isGameOver && !hasPlayedEndSound.current) {
+            if (game.isWinner) {
+                playWin();
+            } else {
+                playLose();
+            }
+            hasPlayedEndSound.current = true;
+        } else if (!game.isGameOver) hasPlayedEndSound.current = false;
+    }, [game.isGameOver, game.isWinner, playWin, playLose]);
 
     const handleCopy = () => {
         game.copyRoomId();
@@ -128,6 +143,7 @@ export function GameScreen() {
                             isWinning={isWinningCell}
                             disabled={game.isGameOver || cellValue !== null}
                             onClick={() => {
+                                playPop();
                                 game.onCellClick(index);
                             }}
                         />
