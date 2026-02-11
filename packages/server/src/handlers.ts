@@ -5,7 +5,7 @@ import {
     JoinGameSchema,
     MakeMoveSchema,
 } from "@task6/lib";
-import { gameStorage } from "./store";
+import { gameStorage } from "./store.js";
 
 export interface InterServerEvents {
     ping: () => void;

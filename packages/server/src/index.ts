@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import { GAME_NAME } from "@task6/lib";
 
 import type { ClientToServerEvents, ServerToClientEvents } from "@task6/lib";
-import { registerSocketHandlers, type InterServerEvents, type SocketData } from "./handlers";
+import { registerSocketHandlers, type InterServerEvents, type SocketData } from "./handlers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +60,8 @@ if (IS_PROD) {
     console.log(`Serving static files from: ${clientDistPath}`);
     app.use(express.static(clientDistPath));
 
-    app.get("*", (_req, res) => {
+    // Catch-all route for SPA - must be last after API routes
+    app.use((_req, res) => {
         res.sendFile(path.join(clientDistPath, "index.html"));
     });
 }

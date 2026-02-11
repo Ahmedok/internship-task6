@@ -2,11 +2,11 @@
 # Stage 1: Base
 FROM node:24-alpine AS base
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY packages/lib/package*.json ./packages/lib/
 COPY packages/client/package*.json ./packages/client/
 COPY packages/server/package*.json ./packages/server/
-RUN npm ci --workspaces
+RUN npm ci --ignore-scripts && npm rebuild
 
 # Stage 2: Build lib
 FROM base AS build-lib
@@ -31,12 +31,13 @@ FROM node:24-alpine AS production
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY packages/lib/package*.json ./packages/lib/
+COPY packages/client/package*.json ./packages/client/
 COPY packages/server/package*.json ./packages/server/
 
 # Install production dependencies only
-RUN npm ci --workspaces --omit=dev
+RUN npm ci --ignore-scripts --omit=dev && npm rebuild
 
 # Copy built artifacts
 COPY --from=build-lib /app/packages/lib/dist ./packages/lib/dist
@@ -50,4 +51,4 @@ EXPOSE 3000
 ENV NODE_ENV=production
 
 # Start server (serves both API and static files)
-CMD ["node", "packages/server/dist/index.js"]
+CMD ["node", "--experimental-specifier-resolution=node", "packages/server/dist/index.js"]
