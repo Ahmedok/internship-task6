@@ -4,13 +4,33 @@ import { Cell } from "../game/Cell";
 import { Button } from "../ui/Button";
 import { CenterLayout } from "../layout/CenterLayout";
 import { cn } from "../../lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../ui/Modal";
 
 export function GameScreen() {
     const game = useTicTacToe();
 
     const [copied, setCopied] = useState(false);
+
+    const [showDelayedModal, setShowDelayedModal] = useState(false);
+
+    useEffect(() => {
+        if (game.isGameOver) {
+            const timer = setTimeout(() => {
+                setShowDelayedModal(true);
+            }, 1500);
+            return () => {
+                clearTimeout(timer);
+            };
+        } else {
+            const timer = setTimeout(() => {
+                setShowDelayedModal(false);
+            }, 0);
+            return () => {
+                clearTimeout(timer);
+            };
+        }
+    }, [game.isGameOver]);
 
     const handleCopy = () => {
         game.copyRoomId();
@@ -28,7 +48,7 @@ export function GameScreen() {
 
     return (
         <CenterLayout>
-            <Modal isOpen={game.isGameOver} title={game.statusText} variant={modalVariant}>
+            <Modal isOpen={showDelayedModal} title={game.statusText} variant={modalVariant}>
                 <div className="flex flex-col gap-3 mt-2">
                     <p className="mb-4 text-sm opacity-80">
                         {game.isWinner
@@ -88,7 +108,7 @@ export function GameScreen() {
             >
                 {game.statusText}
             </div>
-            <Board>
+            <Board winningLine={game.winningLine}>
                 {game.board.map((cellValue, index) => {
                     const isWinningCell = Boolean(game.winningLine?.includes(index));
 

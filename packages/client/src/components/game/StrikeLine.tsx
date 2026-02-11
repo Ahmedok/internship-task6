@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 
 interface StrikeLineProps {
-    winningLine: number[] | null;
+    winningLine: readonly number[] | null;
 }
 
 export function StrikeLine({ winningLine }: StrikeLineProps) {
     if (!winningLine || winningLine.length < 3) return null;
 
-    const getCoords = (line: number[]): [string, string, string, string] => {
+    const getCoords = (line: readonly number[]): [string, string, string, string] => {
         const s = line.join("");
         switch (s) {
             case "012":

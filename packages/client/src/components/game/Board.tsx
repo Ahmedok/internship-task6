@@ -3,7 +3,7 @@ import { StrikeLine } from "./StrikeLine";
 
 interface BoardProps {
     children: ReactNode;
-    winningLine: number[] | null;
+    winningLine: readonly number[] | null;
 }
 
 export function Board({ children, winningLine }: BoardProps) {
