@@ -5,6 +5,7 @@ import { Button } from "../ui/Button";
 import { CenterLayout } from "../layout/CenterLayout";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
+import { Modal } from "../ui/Modal";
 
 export function GameScreen() {
     const game = useTicTacToe();
@@ -19,8 +20,29 @@ export function GameScreen() {
         }, 2000);
     };
 
+    const modalVariant = game.isWinner
+        ? "success"
+        : game.statusColor === "danger"
+          ? "danger"
+          : "neutral";
+
     return (
         <CenterLayout>
+            <Modal isOpen={game.isGameOver} title={game.statusText} variant={modalVariant}>
+                <div className="flex flex-col gap-3 mt-2">
+                    <p className="mb-4 text-sm opacity-80">
+                        {game.isWinner
+                            ? "Great job! Want to play again?"
+                            : "Don't give up! Try again?"}
+                    </p>
+                    <Button onClick={game.onPlayAgain} className="w-full">
+                        Play Again
+                    </Button>
+                    <Button variant="secondary" onClick={game.onLeave} className="w-full">
+                        Back to Lobby
+                    </Button>
+                </div>
+            </Modal>
             <div className="w-full flex justify-between items-center text-slate-400 mb-4">
                 <div className="flex flex-col">
                     <span className="text-xs uppercase tracking-wider">Room ID</span>
@@ -53,14 +75,13 @@ export function GameScreen() {
                     </span>
                 </div>
             </div>
+
             <div
                 className={cn(
                     "w-full py-4 rounded-xl text-center font-bold text-xl mb-6 transition-all duration-300 shadow-lg",
+                    game.isGameOver ? "opacity-0 pointer-events-none" : "opacity-100",
                     game.statusColor === "active" &&
                         "bg-indigo-600 text-white shadow-indigo-500/20 scale-105",
-                    game.statusColor === "success" &&
-                        "bg-green-600 text-white shadow-green-500/20 scale-110",
-                    game.statusColor === "danger" && "bg-rose-600 text-white shadow-rose-500/20",
                     game.statusColor === "neutral" &&
                         "bg-slate-800 text-slate-400 border border-slate-700",
                 )}
@@ -85,15 +106,17 @@ export function GameScreen() {
                 })}
             </Board>
             <div className="w-full mt-8 flex flex-col gap-3">
-                {game.isGameOver && (
-                    <Button onClick={game.onPlayAgain} className="animate-bounce">
-                        Play Again
-                    </Button>
+                {!game.isGameOver && (
+                    <div className="w-full mt-8">
+                        <Button
+                            variant="secondary"
+                            onClick={game.onLeave}
+                            className="opacity-50 hover:opacity-100 transition-opacity"
+                        >
+                            Leave Game
+                        </Button>
+                    </div>
                 )}
-
-                <Button variant="secondary" onClick={game.onLeave}>
-                    Leave Game
-                </Button>
             </div>
         </CenterLayout>
     );
