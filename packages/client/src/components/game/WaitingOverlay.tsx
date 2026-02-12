@@ -26,12 +26,9 @@ export function WaitingOverlay({ roomId }: WaitingOverlayProps) {
             transition={{ duration: 0.3 }}
             className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4"
         >
-            {/* Фоновый блюр для доски (если она видна сзади) */}
             <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-xl" />
 
-            {/* Контент оверлея */}
             <div className="relative z-30 flex flex-col items-center gap-6 text-center">
-                {/* Анимированный лоадер */}
                 <div className="relative">
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
@@ -47,7 +44,6 @@ export function WaitingOverlay({ roomId }: WaitingOverlayProps) {
                     <p className="text-slate-400 text-sm">Share this Room ID to invite a friend</p>
                 </div>
 
-                {/* Большая кнопка с кодом */}
                 <Button
                     onClick={handleCopyBtn}
                     className="group relative flex items-center gap-3 px-6 py-4 bg-slate-800 border-2 border-slate-700 rounded-xl hover:border-indigo-500 transition-all active:scale-95"
@@ -67,8 +63,8 @@ export function WaitingOverlay({ roomId }: WaitingOverlayProps) {
                     </span>
                 </Button>
 
-                <p className="text-xs text-slate-500 animate-pulse">
-                    Game will start automatically when opponent joins
+                <p className="text-xl text-slate-500 opacity-70">
+                    Game will start automatically when an opponent joins
                 </p>
             </div>
         </motion.div>

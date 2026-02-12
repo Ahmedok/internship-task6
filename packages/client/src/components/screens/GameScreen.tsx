@@ -97,7 +97,7 @@ export function GameScreen() {
                             "w-full transition-all",
                             !game.rematchState.iVoted &&
                                 game.rematchState.opponentVoted &&
-                                "bg-green-600 hover:bg-green-500 animate-pulse",
+                                "bg-green-600 hover:bg-green-500",
                         )}
                         disabled={game.rematchState.isDisabled}
                     >
