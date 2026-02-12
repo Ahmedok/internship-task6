@@ -1,3 +1,4 @@
+import { type GameState } from "@task6/lib";
 import { Game } from "./game.js";
 
 const CLEANUP_INTERVAL_MS = 60 * 1000; // 1 min
@@ -28,6 +29,17 @@ export class GameStorage {
         const game = this.games.get(roomId);
         if (game) game.touch();
         return game;
+    }
+
+    getOpenGames(): GameState[] {
+        const openGames: GameState[] = [];
+        for (const game of this.games.values()) {
+            if (game.publicState.status === "WAITING" && game.publicState.players.length === 1) {
+                openGames.push(game.publicState);
+                if (openGames.length >= 10) break;
+            }
+        }
+        return openGames;
     }
 
     removeGame(roomId: string): boolean {

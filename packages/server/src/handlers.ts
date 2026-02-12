@@ -6,6 +6,7 @@ import {
     MakeMoveSchema,
 } from "@task6/lib";
 import { gameStorage } from "./store.js";
+import { Game } from "./game.js";
 
 export interface InterServerEvents {
     ping: () => void;
@@ -30,6 +31,16 @@ export type TypedSocket = Socket<
 >;
 
 export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
+    const broadcastLobbyUpdate = () => {
+        const games = gameStorage.getOpenGames();
+        io.to("lobby").emit("lobby_list_update", games);
+    };
+
+    socket.on("join_lobby", async () => {
+        await socket.join("lobby");
+        socket.emit("lobby_list_update", gameStorage.getOpenGames());
+    });
+
     socket.on("join_game", async (payload, callback) => {
         try {
             const validation = JoinGameSchema.safeParse(payload);
@@ -41,9 +52,16 @@ export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
             }
 
             const { name, roomId } = validation.data;
-            let game;
+            let game: Game | undefined;
 
-            if (roomId) {
+            if (roomId === "FAST_PLAY") {
+                const openGames = gameStorage.getOpenGames();
+
+                const firstGame = openGames[0];
+                if (firstGame) game = gameStorage.findGame(firstGame.roomId);
+
+                game ??= gameStorage.createGame();
+            } else if (roomId) {
                 game = gameStorage.findGame(roomId);
                 if (!game) {
                     if (typeof callback === "function") callback({ error: "Room not found" });
@@ -65,6 +83,8 @@ export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
                 return;
             }
 
+            await socket.leave("lobby");
+
             socket.data.roomId = game.publicState.roomId;
             socket.data.playerName = name;
 
@@ -73,6 +93,8 @@ export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
             if (typeof callback === "function") callback({ roomId: game.publicState.roomId });
 
             io.to(game.publicState.roomId).emit("game_state_update", game.publicState);
+
+            broadcastLobbyUpdate();
         } catch (error) {
             console.error("Error in join_game handler:", error);
             if (typeof callback === "function") callback({ error: "Internal server error" });

@@ -52,6 +52,7 @@ export type MakeMovePayload = z.infer<typeof MakeMoveSchema>;
 // Socket events
 
 export interface ClientToServerEvents {
+    join_lobby: () => void;
     join_game: (
         payload: JoinGamePayload,
         callback: (response: { error?: string; roomId?: string }) => void,
@@ -63,6 +64,7 @@ export interface ClientToServerEvents {
 
 export interface ServerToClientEvents {
     game_state_update: (state: GameState) => void;
+    lobby_list_update: (games: GameState[]) => void;
     error: (message: string) => void;
     game_over: (result: { winner: WinSide; message: string }) => void;
 }

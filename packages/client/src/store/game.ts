@@ -10,8 +10,10 @@ interface GameStateStore {
 
     gameState: GameState | null;
     playerId: string | null;
+    lobbyGames: GameState[];
 
     connect: () => void;
+    joinLobby: () => void;
     joinGame: (payload: JoinGamePayload) => Promise<boolean>;
     makeMove: (index: number) => void;
     playAgain: () => void;
@@ -26,6 +28,7 @@ export const useGameStorage = create<GameStateStore>()(
         error: null,
         gameState: null,
         playerId: null,
+        lobbyGames: [],
 
         connect: () => {
             if (socket.connected) return;
@@ -40,6 +43,10 @@ export const useGameStorage = create<GameStateStore>()(
                 set({ isConnected: false });
             });
 
+            socket.on("lobby_list_update", (games) => {
+                set({ lobbyGames: games });
+            });
+
             socket.on("game_state_update", (newState) => {
                 set({ gameState: newState });
             });
@@ -51,6 +58,10 @@ export const useGameStorage = create<GameStateStore>()(
             socket.on("game_over", (result) => {
                 console.log("Game over:", result.message);
             });
+        },
+
+        joinLobby: () => {
+            socket.emit("join_lobby");
         },
 
         joinGame: async (payload) => {
