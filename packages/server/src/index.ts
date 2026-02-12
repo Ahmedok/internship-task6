@@ -50,6 +50,10 @@ io.on("connection", (socket) => {
 
     registerSocketHandlers(io, socket);
 
+    socket.onAny((event: string, ...args) => {
+        console.log(`Event [${event}] from ${socket.id}:`, args);
+    });
+
     socket.on("disconnect", (reason) => {
         console.log(`Player disconnected: ${socket.id} (${reason})`);
     });
@@ -60,7 +64,6 @@ if (IS_PROD) {
     console.log(`Serving static files from: ${clientDistPath}`);
     app.use(express.static(clientDistPath));
 
-    // Catch-all route for SPA - must be last after API routes
     app.use((_req, res) => {
         res.sendFile(path.join(clientDistPath, "index.html"));
     });

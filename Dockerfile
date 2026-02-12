@@ -44,11 +44,8 @@ COPY --from=build-lib /app/packages/lib/dist ./packages/lib/dist
 COPY --from=build-server /app/packages/server/dist ./packages/server/dist
 COPY --from=build-client /app/packages/client/dist ./packages/client/dist
 
-# Expose port
 EXPOSE 3000
 
-# Set environment
 ENV NODE_ENV=production
 
-# Start server (serves both API and static files)
 CMD ["node", "--experimental-specifier-resolution=node", "packages/server/dist/index.js"]

@@ -14,10 +14,10 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
+        "@task6/lib": "*",
         "cors": "^2.8.6",
         "express": "^5.2.1",
-        "socket.io": "^4.8.3",
-        "@task6/lib": "*"
+        "socket.io": "^4.8.3"
     },
     "devDependencies": {
         "@types/cors": "^2.8.19",
