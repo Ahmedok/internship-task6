@@ -10,12 +10,14 @@ interface WaitingOverlayProps {
 export function WaitingOverlay({ roomId }: WaitingOverlayProps) {
     const [copied, setCopied] = useState(false);
 
-    const handleCopyBtn = () => {
-        copyRoomId(roomId);
-        setCopied(true);
-        setTimeout(() => {
-            setCopied(false);
-        }, 2000);
+    const handleCopyBtn = async () => {
+        const success = await copyRoomId(roomId);
+        if (success) {
+            setCopied(true);
+            setTimeout(() => {
+                setCopied(false);
+            }, 2000);
+        }
     };
 
     return (
@@ -45,7 +47,7 @@ export function WaitingOverlay({ roomId }: WaitingOverlayProps) {
                 </div>
 
                 <Button
-                    onClick={handleCopyBtn}
+                    onClick={() => void handleCopyBtn()}
                     className="group relative flex items-center gap-3 px-6 py-4 bg-slate-800 border-2 border-slate-700 rounded-xl hover:border-indigo-500 transition-all active:scale-95"
                 >
                     <span className="font-mono text-2xl font-bold tracking-widest text-white">

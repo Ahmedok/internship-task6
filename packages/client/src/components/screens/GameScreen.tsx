@@ -80,12 +80,14 @@ export function GameScreen() {
         } else if (!game.isGameOver) hasPlayedEndSound.current = false;
     }, [game.isGameOver, game.isWinner, game.isDraw, playWin, playDraw, playLose]);
 
-    const handleCopyHeader = () => {
-        copyRoomId(game.roomId, true);
-        setCopied(true);
-        setTimeout(() => {
-            setCopied(false);
-        }, 2000);
+    const handleCopyHeader = async () => {
+        const success = await copyRoomId(game.roomId, true);
+        if (success) {
+            setCopied(true);
+            setTimeout(() => {
+                setCopied(false);
+            }, 2000);
+        }
     };
 
     const modalVariant = game.isWinner
@@ -124,7 +126,7 @@ export function GameScreen() {
                 <div className="flex flex-col">
                     <span className="text-xs uppercase tracking-wider">Room ID</span>
                     <button
-                        onClick={handleCopyHeader}
+                        onClick={() => void handleCopyHeader()}
                         className="font-mono text-white hover:text-indigo-400 transition-colors text-left flex items-center gap-2"
                     >
                         {game.roomId}
