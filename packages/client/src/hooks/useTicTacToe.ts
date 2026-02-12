@@ -67,14 +67,5 @@ export function useTicTacToe() {
                   : "Play Again",
             isDisabled: iVoted,
         },
-
-        copyRoomId: () => {
-            const url = `${window.location.origin}/?room=${gameState.roomId}`;
-
-            navigator.clipboard.writeText(url).catch((err: unknown) => {
-                console.error("Failed to copy:", err);
-            });
-            return true;
-        },
     };
 }

@@ -3,10 +3,12 @@ import { Board } from "../game/Board";
 import { Cell } from "../game/Cell";
 import { Button } from "../ui/Button";
 import { CenterLayout } from "../layout/CenterLayout";
-import { cn } from "../../lib/utils";
+import { cn, copyRoomId } from "../../lib/utils";
 import { useState, useEffect, useRef } from "react";
 import { Modal } from "../ui/Modal";
 import { useGameSounds } from "../../hooks/useGameSounds";
+import { AnimatePresence, motion } from "framer-motion";
+import { WaitingOverlay } from "../game/WaitingOverlay";
 
 export function GameScreen() {
     const game = useTicTacToe();
@@ -17,6 +19,25 @@ export function GameScreen() {
     const [copied, setCopied] = useState(false);
 
     const [showDelayedModal, setShowDelayedModal] = useState(false);
+
+    const isWaiting = game.statusText === "Waiting for opponent...";
+
+    const prevStatusRef = useRef(game.statusText);
+
+    useEffect(() => {
+        const prevStatus = prevStatusRef.current;
+        const currentStatus = game.statusText;
+
+        if (
+            prevStatus === "Waiting for opponent..." &&
+            currentStatus !== "Waiting for opponent..."
+        ) {
+            playPop();
+            navigator.vibrate([100, 50, 100]);
+        }
+
+        prevStatusRef.current = currentStatus;
+    }, [game.statusText, playPop]);
 
     useEffect(() => {
         if (game.isGameOver) {
@@ -47,8 +68,8 @@ export function GameScreen() {
         } else if (!game.isGameOver) hasPlayedEndSound.current = false;
     }, [game.isGameOver, game.isWinner, playWin, playLose]);
 
-    const handleCopy = () => {
-        game.copyRoomId();
+    const handleCopyHeader = () => {
+        copyRoomId(game.roomId, true);
         setCopied(true);
         setTimeout(() => {
             setCopied(false);
@@ -91,7 +112,7 @@ export function GameScreen() {
                 <div className="flex flex-col">
                     <span className="text-xs uppercase tracking-wider">Room ID</span>
                     <button
-                        onClick={handleCopy}
+                        onClick={handleCopyHeader}
                         className="font-mono text-white hover:text-indigo-400 transition-colors text-left flex items-center gap-2"
                     >
                         {game.roomId}
@@ -120,7 +141,11 @@ export function GameScreen() {
                 </div>
             </div>
 
-            <div
+            <motion.div
+                animate={{
+                    opacity: isWaiting || game.isGameOver ? 0 : 1,
+                    height: isWaiting || game.isGameOver ? 0 : "auto",
+                }}
                 className={cn(
                     "w-full py-4 rounded-xl text-center font-bold text-xl mb-6 transition-all duration-300 shadow-lg",
                     game.isGameOver ? "opacity-0 pointer-events-none" : "opacity-100",
@@ -131,27 +156,42 @@ export function GameScreen() {
                 )}
             >
                 {game.statusText}
-            </div>
-            <Board winningLine={game.winningLine}>
-                {game.board.map((cellValue, index) => {
-                    const isWinningCell = Boolean(game.winningLine?.includes(index));
+            </motion.div>
+            <div className="relative w-full max-w-100 mx-auto min-h-87.5">
+                <AnimatePresence>
+                    {isWaiting && <WaitingOverlay roomId={game.roomId} />}
+                </AnimatePresence>
+                <motion.div
+                    animate={{
+                        filter: isWaiting ? "blur(8px) grayscale(100%)" : "blur(0px) grayscale(0%)",
+                        opacity: isWaiting ? 0.3 : 1,
+                        scale: isWaiting ? 0.95 : 1,
+                    }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Board winningLine={game.winningLine}>
+                        {game.board.map((cellValue, index) => {
+                            const isWinningCell = Boolean(game.winningLine?.includes(index));
 
-                    return (
-                        <Cell
-                            key={index}
-                            value={cellValue}
-                            isWinning={isWinningCell}
-                            disabled={game.isGameOver || cellValue !== null}
-                            onClick={() => {
-                                playPop();
-                                game.onCellClick(index);
-                            }}
-                        />
-                    );
-                })}
-            </Board>
+                            return (
+                                <Cell
+                                    key={index}
+                                    value={cellValue}
+                                    isWinning={isWinningCell}
+                                    disabled={game.isGameOver || cellValue !== null || isWaiting}
+                                    onClick={() => {
+                                        playPop();
+                                        game.onCellClick(index);
+                                    }}
+                                />
+                            );
+                        })}
+                    </Board>
+                </motion.div>
+            </div>
+
             <div className="w-full mt-8 flex flex-col gap-3">
-                {!game.isGameOver && (
+                {!game.isGameOver && !isWaiting && (
                     <div className="w-full mt-8">
                         <Button
                             variant="secondary"
@@ -159,6 +199,13 @@ export function GameScreen() {
                             className="opacity-50 hover:opacity-100 transition-opacity"
                         >
                             Leave Game
+                        </Button>
+                    </div>
+                )}
+                {isWaiting && (
+                    <div className="w-full mt-8 z-50 relative">
+                        <Button variant="secondary" onClick={game.onLeave}>
+                            Cancel & Leave
                         </Button>
                     </div>
                 )}
