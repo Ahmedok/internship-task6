@@ -44,7 +44,10 @@ export function useTicTacToe() {
         board: gameState.board,
         winningLine: gameState.winningLine,
         mySymbol,
+        myName: me?.name,
         opponentName: opponent?.name,
+        opponentId: opponent?.id,
+        winner: gameState.winner,
 
         isMyTurn,
         isGameOver,

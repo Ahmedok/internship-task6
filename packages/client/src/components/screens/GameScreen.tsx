@@ -9,6 +9,7 @@ import { Modal } from "../ui/Modal";
 import { useGameSounds } from "../../hooks/useGameSounds";
 import { AnimatePresence, motion } from "framer-motion";
 import { WaitingOverlay } from "../game/WaitingOverlay";
+import { useSessionScore } from "../../hooks/useSessionScore";
 
 export function GameScreen() {
     const game = useTicTacToe();
@@ -26,6 +27,8 @@ export function GameScreen() {
 
     const movesCount = game.board.filter((c) => c !== null).length;
     const prevMovesCountRef = useRef(movesCount);
+
+    const score = useSessionScore(game.winner, game.mySymbol, game.opponentId);
 
     useEffect(() => {
         if (movesCount > prevMovesCountRef.current) {
@@ -146,6 +149,50 @@ export function GameScreen() {
                         )}
                     >
                         {game.mySymbol}
+                    </span>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between w-full max-w-100 gap-2 mb-6">
+                <div className="flex-1 min-w-0 flex flex-col items-end">
+                    <span
+                        className={cn(
+                            "font-bold text-lg truncate w-full text-right",
+                            game.mySymbol === "X" ? "text-indigo-400" : "text-rose-400",
+                        )}
+                        title="You"
+                    >
+                        YOU
+                    </span>
+                    <span
+                        className={cn(
+                            "font-bold text-lg truncate w-full text-right",
+                            game.mySymbol === "X" ? "text-indigo-400" : "text-rose-400",
+                        )}
+                        title="You"
+                    >
+                        ({game.myName})
+                    </span>
+                </div>
+
+                <div className="shrink-0 flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700 shadow-inner">
+                    <span className="text-2xl font-black text-white w-6 text-center tabular-nums">
+                        {score.me}
+                    </span>
+                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">
+                        VS
+                    </span>
+                    <span className="text-2xl font-black text-white w-6 text-center tabular-nums">
+                        {score.opponent}
+                    </span>
+                </div>
+
+                <div className="flex-1 min-w-0 flex flex-col items-start">
+                    <span
+                        className="font-bold text-lg text-slate-400 truncate w-full text-left"
+                        title={game.opponentName}
+                    >
+                        {game.opponentName ?? "Waiting..."}
                     </span>
                 </div>
             </div>
