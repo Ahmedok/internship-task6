@@ -46,7 +46,8 @@ export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
             const validation = JoinGameSchema.safeParse(payload);
             if (!validation.success) {
                 if (typeof callback === "function") {
-                    callback({ error: "Invalid data: " + validation.error.message });
+                    const errorMsg = validation.error.issues[0]?.message ?? "Validation error";
+                    callback({ error: errorMsg });
                 }
                 return;
             }

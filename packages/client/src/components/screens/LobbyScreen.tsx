@@ -26,6 +26,8 @@ export function LobbyScreen() {
             navigator.vibrate(50);
             return false;
         }
+        if (name.length > 12) return false;
+
         return true;
     };
 
@@ -80,6 +82,7 @@ export function LobbyScreen() {
                         <Input
                             placeholder="Enter your name"
                             value={name}
+                            maxLength={12}
                             onChange={(e) => {
                                 setName(e.target.value);
                                 if (nameError) setNameError(false);
