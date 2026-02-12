@@ -4,6 +4,7 @@ import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { CenterLayout } from "../layout/CenterLayout";
+import { motion } from "framer-motion";
 
 function getInitialRoomId() {
     const params = new URLSearchParams(window.location.search);
@@ -17,37 +18,45 @@ export function LobbyScreen() {
     const [name, setName] = useState("");
     const [joinRoomId, setJoinRoomId] = useState(getInitialRoomId());
 
+    const [nameError, setNameError] = useState(false);
+
+    const validateName = (): boolean => {
+        if (!name.trim()) {
+            setNameError(true);
+            navigator.vibrate(50);
+            return false;
+        }
+        return true;
+    };
+
     useEffect(() => {
         connect();
         joinLobby();
     }, [connect, joinLobby]);
 
     const handleCreate = () => {
-        if (!name.trim()) return;
+        if (!validateName()) return;
         joinGame({ name }).catch((err: unknown) => {
             console.error("Failed to create game:", err);
         });
     };
 
     const handleJoin = () => {
-        if (!name.trim() || !joinRoomId.trim()) return;
-        joinGame({ name, roomId: joinRoomId }).catch((err: unknown) => {
+        if (!validateName() || !joinRoomId.trim()) return;
+        joinGame({ name, roomId: joinRoomId.toLowerCase() }).catch((err: unknown) => {
             console.error("Failed to join game:", err);
         });
     };
 
     const handleFastPlay = () => {
-        if (!name.trim()) return;
+        if (!validateName()) return;
         joinGame({ name: name || "Guest", roomId: "FAST_PLAY" }).catch((err: unknown) => {
             console.error("Failed to join fast play:", err);
         });
     };
 
     const handleQuickJoin = (roomId: string) => {
-        if (!name.trim()) {
-            // Optionally, you could set focus on the name input or show an error
-            return;
-        }
+        if (!validateName()) return;
         joinGame({ name, roomId }).catch((err: unknown) => {
             console.error("Failed to quick join:", err);
         });
@@ -57,15 +66,22 @@ export function LobbyScreen() {
         <CenterLayout>
             <Card title="Tic-Tac-Toe Online">
                 <div className="flex flex-col gap-4">
-                    <Input
-                        placeholder="Enter your name"
-                        value={name}
-                        onChange={(e) => {
-                            setName(e.target.value);
-                            if (error) resetError();
-                        }}
-                    />
-                    <Button onClick={handleCreate} disabled={!name.trim()} isLoading={isConnecting}>
+                    <motion.div
+                        animate={nameError ? { x: [-10, 10, -10, 10, 0] } : {}}
+                        transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                    >
+                        <Input
+                            placeholder="Enter your name"
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                if (nameError) setNameError(false);
+                                if (error) resetError();
+                            }}
+                            error={nameError ? "Name is required to play!" : null}
+                        />
+                    </motion.div>
+                    <Button onClick={handleCreate} disabled={isConnecting} isLoading={isConnecting}>
                         Create New Game
                     </Button>
 
@@ -80,15 +96,17 @@ export function LobbyScreen() {
                             placeholder="Room ID"
                             value={joinRoomId}
                             onChange={(e) => {
-                                setJoinRoomId(e.target.value);
+                                const value = e.target.value.toUpperCase().replace(/\s/g, "");
+                                setJoinRoomId(value);
                                 if (error) resetError();
                             }}
-                            className="font-mono text-center uppercase"
+                            className="font-mono text-center uppercase tracking-widest"
+                            maxLength={6}
                         />
                         <Button
                             variant="secondary"
                             onClick={handleJoin}
-                            disabled={!name.trim() || !joinRoomId.trim()}
+                            disabled={isConnecting}
                             isLoading={isConnecting}
                             className="w-1/3"
                         >
@@ -114,7 +132,7 @@ export function LobbyScreen() {
                         <Button
                             variant="secondary"
                             onClick={handleFastPlay}
-                            disabled={!name.trim()}
+                            disabled={isConnecting}
                             className="mb-4 bg-linear-to-r from-indigo-900 to-slate-800 border border-indigo-500/30"
                             isLoading={isConnecting}
                         >
@@ -144,7 +162,7 @@ export function LobbyScreen() {
                                             onClick={() => {
                                                 handleQuickJoin(game.roomId);
                                             }}
-                                            disabled={!name.trim()}
+                                            disabled={isConnecting}
                                             className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded-md font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Join
