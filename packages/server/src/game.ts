@@ -59,13 +59,12 @@ export class Game {
     removePlayer(playerId: string): void {
         this.state.players = this.state.players.filter((p) => p.id !== playerId);
 
-        if (this.state.status === "PLAYING") {
-            this.state.status = "ABORTED";
-        } else {
-            this.state.status = "WAITING";
-            if (this.state.players[0]) {
-                this.state.players[0].symbol = "X";
-            }
+        if (this.state.players.length === 0) return;
+
+        this.resetGame();
+
+        if (this.state.players[0]) {
+            this.state.players[0].symbol = "X";
         }
 
         this.lastActivity = Date.now();

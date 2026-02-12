@@ -146,7 +146,10 @@ export function registerSocketHandlers(io: TypedServer, socket: TypedSocket) {
         if (game) {
             game.removePlayer(socket.id);
 
-            if (game.playerCount > 0) io.to(roomId).emit("game_state_update", game.publicState);
+            if (game.playerCount > 0) {
+                io.to(roomId).emit("game_state_update", game.publicState);
+                broadcastLobbyUpdate();
+            }
         }
     });
 }
