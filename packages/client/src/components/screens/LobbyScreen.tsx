@@ -34,6 +34,13 @@ export function LobbyScreen() {
         joinLobby();
     }, [connect, joinLobby]);
 
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("room")) {
+            window.history.replaceState({}, "", window.location.pathname);
+        }
+    }, []);
+
     const handleCreate = () => {
         if (!validateName()) return;
         joinGame({ name }).catch((err: unknown) => {
