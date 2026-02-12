@@ -49,6 +49,7 @@ export function useTicTacToe() {
         isMyTurn,
         isGameOver,
         isWinner,
+        isDraw,
 
         statusText,
         statusColor,

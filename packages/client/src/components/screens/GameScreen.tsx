@@ -13,7 +13,7 @@ import { WaitingOverlay } from "../game/WaitingOverlay";
 export function GameScreen() {
     const game = useTicTacToe();
 
-    const { playWin, playLose, playPop } = useGameSounds();
+    const { playWin, playLose, playDraw, playPop, playOpponentPop } = useGameSounds();
     const hasPlayedEndSound = useRef(false);
 
     const [copied, setCopied] = useState(false);
@@ -23,6 +23,16 @@ export function GameScreen() {
     const isWaiting = game.statusText === "Waiting for opponent...";
 
     const prevStatusRef = useRef(game.statusText);
+
+    const movesCount = game.board.filter((c) => c !== null).length;
+    const prevMovesCountRef = useRef(movesCount);
+
+    useEffect(() => {
+        if (movesCount > prevMovesCountRef.current) {
+            if (game.isMyTurn && !game.isGameOver) playOpponentPop();
+        }
+        prevMovesCountRef.current = movesCount;
+    }, [movesCount, game.isMyTurn, game.isGameOver, playOpponentPop]);
 
     useEffect(() => {
         const prevStatus = prevStatusRef.current;
@@ -59,14 +69,13 @@ export function GameScreen() {
 
     useEffect(() => {
         if (game.isGameOver && !hasPlayedEndSound.current) {
-            if (game.isWinner) {
-                playWin();
-            } else {
-                playLose();
-            }
+            if (game.isWinner) playWin();
+            else if (game.isDraw) playDraw();
+            else playLose();
+
             hasPlayedEndSound.current = true;
         } else if (!game.isGameOver) hasPlayedEndSound.current = false;
-    }, [game.isGameOver, game.isWinner, playWin, playLose]);
+    }, [game.isGameOver, game.isWinner, game.isDraw, playWin, playDraw, playLose]);
 
     const handleCopyHeader = () => {
         copyRoomId(game.roomId, true);
